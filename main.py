@@ -98,6 +98,7 @@ def format_anime_info(client, message):
 
 app.run()
 '''
+'''
 from pyrogram import Client, filters
 import unicodedata
 
@@ -150,6 +151,63 @@ def format_anime_info(client, message):
 
 
 app.run()
+'''
+# main.py
+import os
+import threading
+import unicodedata
+from pyrogram import Client, filters
+from flask import Flask
+
+# Telegram bot setup (unchanged)
+api_id   = int(os.getenv("API_ID"))
+api_hash = os.getenv("API_HASH")
+bot_token= os.getenv("BOT_TOKEN")
+
+app_bot = Client("formatter_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+def normalize_text(text):
+    return ''.join(c for c in unicodedata.normalize('NFD', text)
+                   if unicodedata.category(c) != 'Mn')
+
+@app_bot.on_message(filters.private & filters.text)
+def format_anime_info(client, message):
+    text = normalize_text(message.text)
+    lines = text.split("\n")
+    title = lines[0]
+    eps = synopsis = ""
+    for l in lines:
+        if "No of episodes" in l or "ɴᴏ ᴏғ ᴇᴘɪsᴏᴅᴇs" in l:
+            eps = l.split(":",1)[1].strip()
+        if "Synopsis" in l or "sʏɴᴏᴘsɪs" in l:
+            synopsis = l.split(":",1)[1].strip()
+            break
+    out = f"""{title}
+──────────────────────────────
+➡ ꜱᴇᴀꜱᴏɴ : 01
+➡ ʟᴀɴɢᴜᴀɢᴇ : ᴊᴀᴘ | ᴇɴɢ
+➡ Qᴜᴀʟɪᴛʏ : 480ᴘ|720ᴘ|1080ᴘ
+➡ ᴇᴘɪꜱᴏᴅᴇꜱ : {eps or 'N/A'}
+⭐ sʏɴᴏᴘsɪs : {synopsis or 'N/A'}
+──────────────────────────────
+👑ᴘᴏᴡᴇʀᴇᴅ ʙʏ : @Animes2u"""
+    message.reply_text(out)
+
+def run_bot():
+    app_bot.run()
+
+# Minimal Flask app for health check on port 8000
+web = Flask("health")
+
+@web.route("/")
+def health():
+    return "OK", 200
+
+if __name__ == "__main__":
+    # Start Telegram bot in a background thread
+    threading.Thread(target=run_bot).start()
+    # Then start Flask on port 8000
+    web.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
 
 
 
