@@ -102,8 +102,8 @@ app.run()
 from pyrogram import Client, filters
 import unicodedata
 
-api_id = 22648485  # Replace with your API ID
-api_hash = "8a714c643f86acb3d07a2baa4831f95b"  # Replace with your API Hash
+api_id = 25956970  # Replace with your API ID
+api_hash = "5fb73e6994d62ba1a7b8009991dd74b6"  # Replace with your API Hash
 bot_token = "7926389008:AAE84r3NKMfPxttKXsVYZNUcEUj6OCZAEHA"  # Replace with your Bot Token
 
 app = Client("formatter_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
