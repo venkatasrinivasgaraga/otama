@@ -1,4 +1,4 @@
-
+'''
 from pyrogram import Client, filters
 
 api_id = 25956970  # Replace with your API ID
@@ -45,3 +45,56 @@ def format_anime_info(client, message):
 app.run()
 
 
+'''
+import threading
+from flask import Flask
+from pyrogram import Client, filters
+
+app = Flask(__name__)
+bot = Client("formatter_bot", api_id=25956970, api_hash="5fb73e6994d62ba1a7b8009991dd74b6", bot_token="7894175068:AAHjkgMb1SHXVysQpWJ_R3WUwIlUFFdVKw4")
+
+@app.route('/')
+def health_check():
+    return "OK", 200
+
+def run_flask():
+    app.run(host="0.0.0.0", port=8000)
+
+def run_bot():
+    @bot.on_message(filters.private & filters.text)
+    def format_anime_info(client, message):
+        text = message.text
+        try:
+            lines = text.split("\n")
+            title_line = lines[0]
+            episodes = ""
+            synopsis = ""
+
+            for line in lines:
+                if "ɴᴏ ᴏғ ᴇᴘɪsᴏᴅᴇs" in line:
+                    episodes = line.split(":")[-1].strip()
+                if "sʏɴᴏᴘsɪs" in line:
+                    synopsis_index = lines.index(line)
+                    synopsis = "\n".join(lines[synopsis_index:]).split(":", 1)[-1].strip()
+                    break
+
+            output = f"""{title_line}
+─────────────────────────────────────────────────────
+➡ ꜱᴇᴀꜱᴏɴ : 01
+➡ ʟᴀɴɢᴜᴀɢᴇ : ᴊᴀᴘ | ᴇɴɢ
+➡ Qᴜᴀʟɪᴛʏ : 480ᴘ| 720ᴘ| 1080ᴘ
+➡ ᴇᴘɪꜱᴏᴅᴇꜱ :{episodes}
+⭐ sʏɴᴏᴘsɪs : {synopsis}
+────────────────────────────────
+👑ᴘᴏᴡᴇʀᴇᴅ ʙʏ : @Animes2u"""
+
+            message.reply_text(output)
+
+        except Exception as e:
+            message.reply_text("❌ Failed to parse the input. Please check the format.")
+
+    bot.run()
+
+# Run both Flask server and bot concurrently
+threading.Thread(target=run_flask).start()
+run_bot()
