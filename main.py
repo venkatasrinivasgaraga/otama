@@ -44,7 +44,7 @@ def format_anime_info(client, message):
 
 app.run()
 
-'''
+
 '''
 from pyrogram import Client, filters
 import unicodedata
