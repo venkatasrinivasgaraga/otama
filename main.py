@@ -160,9 +160,9 @@ from pyrogram import Client, filters
 from flask import Flask
 
 # Telegram bot setup (unchanged)
-api_id   = int(os.getenv("API_ID"))
-api_hash = os.getenv("API_HASH")
-bot_token= os.getenv("BOT_TOKEN")
+api_id   = int(os.getenv("22648485"))
+api_hash = os.getenv("8a714c643f86acb3d07a2baa4831f95b")
+bot_token= os.getenv("7926389008:AAE84r3NKMfPxttKXsVYZNUcEUj6OCZAEHA")
 
 app_bot = Client("formatter_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
