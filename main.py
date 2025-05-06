@@ -159,29 +159,34 @@ import unicodedata
 from pyrogram import Client, filters
 from flask import Flask
 
-# Telegram bot setup (unchanged)
-api_id   = int(os.getenv("22648485"))
-api_hash = os.getenv("8a714c643f86acb3d07a2baa4831f95b")
-bot_token= os.getenv("7926389008:AAE84r3NKMfPxttKXsVYZNUcEUj6OCZAEHA")
+# ——— Hard‑coded credentials ———
+api_id    = 22648485
+api_hash  = "8a714c643f86acb3d07a2baa4831f95b"
+bot_token = "7894175068:AAHjkgMb1SHXVysQpWJ_R3WUwIlUFFdVKw4"
+# ————————————————————————
 
 app_bot = Client("formatter_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 def normalize_text(text):
-    return ''.join(c for c in unicodedata.normalize('NFD', text)
-                   if unicodedata.category(c) != 'Mn')
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', text)
+        if unicodedata.category(c) != 'Mn'
+    )
 
 @app_bot.on_message(filters.private & filters.text)
 def format_anime_info(client, message):
     text = normalize_text(message.text)
     lines = text.split("\n")
-    title = lines[0]
+    title = lines[0].strip()
     eps = synopsis = ""
+
     for l in lines:
         if "No of episodes" in l or "ɴᴏ ᴏғ ᴇᴘɪsᴏᴅᴇs" in l:
-            eps = l.split(":",1)[1].strip()
+            eps = l.split(":", 1)[1].strip()
         if "Synopsis" in l or "sʏɴᴏᴘsɪs" in l:
-            synopsis = l.split(":",1)[1].strip()
+            synopsis = l.split(":", 1)[1].strip()
             break
+
     out = f"""{title}
 ──────────────────────────────
 ➡ ꜱᴇᴀꜱᴏɴ : 01
@@ -196,7 +201,7 @@ def format_anime_info(client, message):
 def run_bot():
     app_bot.run()
 
-# Minimal Flask app for health check on port 8000
+# Minimal Flask app for health checks
 web = Flask("health")
 
 @web.route("/")
@@ -204,10 +209,7 @@ def health():
     return "OK", 200
 
 if __name__ == "__main__":
-    # Start Telegram bot in a background thread
-    threading.Thread(target=run_bot).start()
-    # Then start Flask on port 8000
-    web.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-
-
-
+    # Start the Telegram bot in its own thread
+    threading.Thread(target=run_bot, daemon=True).start()
+    # Then serve the health‑check HTTP endpoint on PORT (default 8000)
+    web.run(host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
